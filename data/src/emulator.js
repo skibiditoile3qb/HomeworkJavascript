@@ -1162,7 +1162,6 @@ class EmulatorJS {
             if (!this.started) return;
             this.callEvent("exit");
         });
-      this.addEventListener(window, "beforeunload", (e) => {
         this.addEventListener(this.elements.parent, "dragenter", (e) => {
             e.preventDefault();
             if (!this.started) return;
@@ -1328,11 +1327,6 @@ class EmulatorJS {
             icon: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"/></svg>',
             displayName: "Save State"
         },
-        autoSave: {
-    visible: true,
-    icon: '<svg viewBox="0 0 512 512"><path fill="currentColor" d="M256 8C119 8 8 119 8 256s111 248 248 248 248-111 248-248S393 8 256 8zm0 448c-110.5 0-200-89.5-200-200S145.5 56 256 56s200 89.5 200 200-89.5 200-200 200zm-8-313v190.2l65.1-65.1c4.7-4.7 12.3-4.7 17 0 4.7 4.7 4.7 12.3 0 17l-80 80c-4.7 4.7-12.3 4.7-17 0l-80-80c-4.7-4.7-4.7-12.3 0-17 4.7-4.7 12.3-4.7 17 0l65.1 65.1V143c0-6.6 5.4-12 12-12s12 5.4 12 12z"/></svg>',
-    displayName: "Auto Save"
-},
         loadState: {
             visible: true,
             icon: '<svg viewBox="0 0 576 512"><path fill="currentColor" d="M572.694 292.093L500.27 416.248A63.997 63.997 0 0 1 444.989 448H45.025c-18.523 0-30.064-20.093-20.731-36.093l72.424-124.155A64 64 0 0 1 152 256h399.964c18.523 0 30.064 20.093 20.73 36.093zM152 224h328v-48c0-26.51-21.49-48-48-48H272l-64-64H48C21.49 64 0 85.49 0 112v278.046l69.077-118.418C86.214 242.25 117.989 224 152 224z"/></svg>',
@@ -2006,113 +2000,6 @@ class EmulatorJS {
                 a.click();
             }
         });
-let autoSaveHandle = null;
-let autoSaveEnabled = false;
-const autoSave = addButton(this.config.buttonOpts.autoSave, async () => {
-    if (!window.showDirectoryPicker) {
-        this.displayMessage("File System Access API not supported", 5000);
-        return;
-    }
-    
-    if (autoSaveEnabled) {
-        // Disable auto-save
-        clearInterval(this.autoSaveInterval);
-        autoSaveEnabled = false;
-        autoSaveHandle = null;
-        autoSave.style.backgroundColor = "";
-        this.displayMessage("Auto-save disabled", 2000);
-        return;
-    }
-    
-    try {
-        // Check if we can create a save state first
-        let testState;
-        try {
-            testState = this.gameManager.getState();
-        } catch (error) {
-            this.displayMessage("Cannot create save state", 3000);
-            return;
-        }
-        
-        const dirHandle = await window.showDirectoryPicker({
-            mode: 'readwrite',
-            startIn: 'documents'
-        });
-        
-        // Test write permissions by creating a test file
-        try {
-            const testFileName = `${this.getBaseFileName()}-test.state`;
-            const testFileHandle = await dirHandle.getFileHandle(testFileName, { create: true });
-            const testWritable = await testFileHandle.createWritable();
-            await testWritable.write(new Uint8Array([1, 2, 3, 4])); // Small test data
-            await testWritable.close();
-            
-            // Clean up test file
-            await dirHandle.removeEntry(testFileName);
-        } catch (error) {
-            this.displayMessage("Cannot write to selected directory", 3000);
-            return;
-        }
-        
-        autoSaveHandle = dirHandle;
-        autoSaveEnabled = true;
-        
-        // Start auto-saving every 30 seconds
-        this.autoSaveInterval = setInterval(async () => {
-            if (!autoSaveEnabled) return;
-            
-           try {
-    // Check if directory handle is still valid
-    if (!autoSaveHandle) {
-        throw new Error("Directory handle is null");
-    }
-    
-    // Test directory access before attempting save
-    await autoSaveHandle.requestPermission({ mode: 'readwrite' });
-    
-    const state = this.gameManager.getState();
-if (!state || state.length === 0) {
-    throw new Error("Unable to generate save state");
-}
-    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-    const fileName = `${this.getBaseFileName()}-auto-${timestamp}.state`;
-    
-    const fileHandle = await autoSaveHandle.getFileHandle(fileName, { create: true });
-                const writable = await fileHandle.createWritable();
-                await writable.write(new Uint8Array(state));
-                await writable.close();
-                
-                this.displayMessage(`Auto-saved: ${fileName}`, 1500);
-           } catch (error) {
-    console.error("Auto-save failed:", error);
-    
-    // More specific error handling
-    if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
-        clearInterval(this.autoSaveInterval);
-        autoSaveEnabled = false;
-        autoSaveHandle = null;
-        autoSave.style.backgroundColor = "";
-        this.displayMessage("Auto-save disabled: Permission denied", 4000);
-    } else if (error.name === 'InvalidStateError') {
-        this.displayMessage("Auto-save failed: Directory no longer available", 3000);
-        // Try to re-request directory access
-        autoSaveHandle = null;
-    } else {
-        this.displayMessage(`Auto-save failed: ${error.message}`, 3000);
-    }
-}
-        }, 30000); // 30 seconds
-        
-        this.displayMessage("Auto-save enabled - saves every 30 seconds", 3000);
-        autoSave.style.backgroundColor = "rgba(var(--ejs-primary-color), 0.3)";
-        
-    } catch (error) {
-        if (error.name !== 'AbortError') {
-            console.error("Directory picker error:", error);
-            this.displayMessage("Failed to select directory: " + error.message, 4000);
-        }
-    }
-});
         const loadState = addButton(this.config.buttonOpts.loadState, async () => {
             const called = this.callEvent("loadState");
             if (called > 0) return;
@@ -2446,14 +2333,13 @@ if (!state || state.length === 0) {
             enter.style.display = "none";
         }
 
-this.elements.bottomBar = {
+        this.elements.bottomBar = {
             playPause: [pauseButton, playButton],
             restart: [restartButton],
             settings: [settingButton],
             contextMenu: [contextMenuButton],
             fullscreen: [enter, exit],
             saveState: [saveState],
-            autoSave: [autoSave],
             loadState: [loadState],
             gamepad: [controlMenu],
             cheat: [cheatMenu],
@@ -2483,7 +2369,6 @@ this.elements.bottomBar = {
             }
             if (this.config.buttonOpts.saveState.visible === false) saveState.style.display = "none";
             if (this.config.buttonOpts.loadState.visible === false) loadState.style.display = "none";
-            if (this.config.buttonOpts.autoSave.visible === false) autoSave.style.display = "none";
             if (this.config.buttonOpts.saveSavFiles.visible === false) saveSavFiles.style.display = "none";
             if (this.config.buttonOpts.loadSavFiles.visible === false) loadSavFiles.style.display = "none";
             if (this.config.buttonOpts.gamepad.visible === false) controlMenu.style.display = "none";
@@ -2512,7 +2397,6 @@ this.elements.bottomBar = {
             unmuteButton.style.display = "none";
             saveState.style.display = "none";
             loadState.style.display = "none";
-            autoSave.style.display = "none";
             saveSavFiles.style.display = "none";
             loadSavFiles.style.display = "none";
             controlMenu.style.display = "none";
