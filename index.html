@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>EmulatorJS</title>
+        <title>HomeworkJS</title>
         <link rel = icon href = docs/favicon.ico sizes = "16x16 32x32 48x48 64x64" type = image/vnd.microsoft.icon>
         <meta name = viewport content = "width = device-width, initial-scale = 1">
         <style>
@@ -99,13 +99,13 @@
 
     <body>
         <div id="top">
-            <h1>EmulatorJS Demo</h1>
+            <h1>HomeworkJS</h1>
             <img src="docs/Logo-light.png" alt="Logo" class="logo">
             <br>
         </div>
         <div id="box">
             <input type="file" id ="input" title="Upload" />
-            Drag ROM file or click here
+            Drag ROMMY homework file or click here
         </div>
 
         <script>
@@ -175,38 +175,43 @@
                         return ext
 
                     return await new Promise(resolve => {
-                        var coreValues = {
-                            "Nintendo 64": "n64",
-                            "Nintendo Game Boy": "gb",
-                            "Nintendo Game Boy Advance": "gba",
-                            "Nintendo DS": "nds",
-                            "Nintendo Entertainment System": "nes",
-                            "Super Nintendo Entertainment System": "snes",
-                            "PlayStation": "psx",
-                            "Virtual Boy": "vb",
-                            "Sega Mega Drive": "segaMD",
-                            "Sega Master System": "segaMS",
-                            "Sega CD": "segaCD",
-                            "Atari Lynx": "lynx",
-                            "Sega 32X": "sega32x",
-                            "Atari Jaguar": "jaguar",
-                            "Sega Game Gear": "segaGG",
-                            "Sega Saturn": "segaSaturn",
-                            "Atari 7800": "atari7800",
-                            "Atari 2600": "atari2600",
-                            "Arcade": "arcade",
-                            "NEC TurboGrafx-16/SuperGrafx/PC Engine": "pce",
-                            "NEC PC-FX": "pcfx",
-                            "SNK NeoGeo Pocket (Color)": "ngp",
-                            "Bandai WonderSwan (Color)": "ws",
-                            "ColecoVision": "coleco",
-                            "Commodore 64": "vice_x64sc",
-                            "Commodore 128": "vice_x128",
-                            "Commodore VIC20": "vice_xvic",
-                            "Commodore Plus/4": "vice_xplus4",
-                            "Commodore PET": "vice_xpet",
-                            "DOSBOX-PURE": "dosbox_pure"
-                        }
+                        var coreValues = 
+{
+  "N!ntend$ 64":                        "n64",
+  "N!ntend$ Game B@y":                  "gb",
+  "N!ntend$ Game B@y Adv@nc!":          "gba",
+  "N!ntend$ DS":                        "nds",
+  "N!ntend$ Ent!rtainm!nt System":      "nes",
+  "Super N!ntend$ Ent!rtainm!nt System": "snes",
+  "PlayStat!$n":                        "psx",
+  "Virtu@l B@y":                        "vb",
+  "Seg@ Meg@ Dr!ve":                    "segaMD",
+  "Seg@ Mast!r System":                 "segaMS",
+  "Seg@ CD":                            "segaCD",
+  "At@r! Lynx":                         "lynx",
+  "Seg@ 32X":                           "sega32x",
+  "At@r! Jag@ar":                       "jaguar",
+  "Seg@ Game G!@r":                     "segaGG",
+  "Seg@ Sat#rn":                        "segaSaturn",
+  "At@r! 7800":                         "atari7800",
+  "At@r! 2600":                         "atari2600",
+  "Arc@d!":                             "arcade",
+  "NEC TurboGrafx-16/SuperGrafx/PC Eng!ne": "pce",
+  "NEC PC-FX":                          "pcfx",
+  "SNK Ne$Ge$ P$cket (Col$r)":          "ngp",
+  "Band@! W$nderSw@n (Col$r)":          "ws",
+  "Colec$V!s!$n":                       "coleco",
+  "C$mm$dor! 64":                       "vice_x64sc",
+  "C$mm$dor! 128":                      "vice_x128",
+  "C$mm$dor! VIC20":                    "vice_xvic",
+  "C$mm$dor! Plus/4":                   "vice_xplus4",
+  "C$mm$dor! PET":                      "vice_xpet",
+  "DOSBOX-PURE":                        "dosbox_pure"
+}
+
+}
+
+                        
 
                         const cores = Object.keys(coreValues).sort().reduce(
                             (obj, key) => { 
