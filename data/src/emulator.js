@@ -1,4 +1,3 @@
-//idk
 class EmulatorJS {
     getCores() {
         let rv = {
@@ -2064,51 +2063,40 @@ const autoSave = addButton(this.config.buttonOpts.autoSave, async () => {
             
            try {
     // Check if directory handle is still valid
- if (!autoSaveHandle) {
-    clearInterval(this.autoSaveInterval);
-    autoSaveEnabled = false;
-    autoSave.style.backgroundColor = "";
-    this.displayMessage("Auto-save disabled: Directory handle lost", 3000);
-    return;
-}
-
-// Test directory access before attempting save
-const permission = await autoSaveHandle.requestPermission({ mode: 'readwrite' });
-if (permission !== 'granted') {
-    throw new Error("Permission denied for directory access");
-}
+    if (!autoSaveHandle) {
+        throw new Error("Directory handle is null");
+    }
     
-  const state = this.gameManager.getState();
+    // Test directory access before attempting save
+    await autoSaveHandle.requestPermission({ mode: 'readwrite' });
+    
+    const state = this.gameManager.getState();
 if (!state || state.length === 0) {
     throw new Error("Unable to generate save state");
 }
-const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
-const fileName = `${this.getBaseFileName()}-auto-${timestamp}.state`;
-
-const fileHandle = await autoSaveHandle.getFileHandle(fileName, { create: true });
-const writable = await fileHandle.createWritable();
-await writable.write(new Uint8Array(state));
-await writable.close();
+    const timestamp = new Date().toISOString().replace(/[:.]/g, '-').substring(0, 19);
+    const fileName = `${this.getBaseFileName()}-auto-${timestamp}.state`;
+    
+    const fileHandle = await autoSaveHandle.getFileHandle(fileName, { create: true });
+                const writable = await fileHandle.createWritable();
+                await writable.write(new Uint8Array(state));
+                await writable.close();
                 
                 this.displayMessage(`Auto-saved: ${fileName}`, 1500);
-         } catch (error) {
+           } catch (error) {
     console.error("Auto-save failed:", error);
     
+    // More specific error handling
     if (error.name === 'NotAllowedError' || error.name === 'SecurityError') {
         clearInterval(this.autoSaveInterval);
         autoSaveEnabled = false;
         autoSaveHandle = null;
         autoSave.style.backgroundColor = "";
         this.displayMessage("Auto-save disabled: Permission denied", 4000);
-    } else if (error.name === 'InvalidStateError' || error.name === 'NotFoundError') {
-        clearInterval(this.autoSaveInterval);
-        autoSaveEnabled = false;
+    } else if (error.name === 'InvalidStateError') {
+        this.displayMessage("Auto-save failed: Directory no longer available", 3000);
+        // Try to re-request directory access
         autoSaveHandle = null;
-        autoSave.style.backgroundColor = "";
-        this.displayMessage("Auto-save disabled: Directory no longer available", 4000);
-    } else if (error.message.includes("Unable to generate save state")) {
-        // Don't disable auto-save for temporary save state issues
-        this.displayMessage("Auto-save skipped: Save state unavailable", 2000);
     } else {
         this.displayMessage(`Auto-save failed: ${error.message}`, 3000);
     }
@@ -2495,7 +2483,7 @@ this.elements.bottomBar = {
             }
             if (this.config.buttonOpts.saveState.visible === false) saveState.style.display = "none";
             if (this.config.buttonOpts.loadState.visible === false) loadState.style.display = "none";
-           if (this.config.buttonOpts && this.config.buttonOpts.autoSave && this.config.buttonOpts.autoSave.visible === false) autoSave.style.display = "none";
+            if (this.config.buttonOpts.autoSave.visible === false) autoSave.style.display = "none";
             if (this.config.buttonOpts.saveSavFiles.visible === false) saveSavFiles.style.display = "none";
             if (this.config.buttonOpts.loadSavFiles.visible === false) loadSavFiles.style.display = "none";
             if (this.config.buttonOpts.gamepad.visible === false) controlMenu.style.display = "none";
