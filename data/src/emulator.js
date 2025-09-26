@@ -1513,7 +1513,7 @@ class EmulatorJS {
             // Set up interval for every 30 seconds
             this.autosaveInterval = setInterval(() => {
                 this.performAutosave();
-            }, 30000);
+            }, 10000);
             
         } catch (error) {
             if (error.name !== 'AbortError') {
