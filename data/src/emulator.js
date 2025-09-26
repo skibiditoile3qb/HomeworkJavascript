@@ -1496,9 +1496,8 @@ class EmulatorJS {
     async startAutosave() {
         try {
             // Request file handle for saving
-           setTimeout(() => {
-  this.displayMessage(this.localization("Rename any file to autosave.state for efficiency."), 5000);
-}, 5000);
+            this.displayMessage(this.localization("Rename any file to autosave.state for efficiency."), 3000);
+            await new Promise(resolve => setTimeout(resolve, 3000));
 
             this.autosaveFileHandle = await window.showSaveFilePicker({
                 suggestedName: this.getBaseFileName() + "-autosave.state",
