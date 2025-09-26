@@ -237,6 +237,9 @@ class EmulatorJS {
         this.cheats = [];
         this.started = false;
         this.volume = (typeof this.config.volume === "number") ? this.config.volume : 0.5;
+        this.autosaveEnabled = false;
+        this.autosaveInterval = null;
+        this.autosaveFileHandle = null;
         if (this.config.defaultControllers) this.defaultControllers = this.config.defaultControllers;
         this.muted = false;
         this.paused = true;
@@ -1099,6 +1102,7 @@ class EmulatorJS {
         } catch(e) {
             console.warn("Failed to start game", e);
             this.startGameError(this.localization("Failed to start game"));
+            this.stopAutosave(); 
             this.callEvent("exit");
             return;
         }
@@ -1160,6 +1164,7 @@ class EmulatorJS {
         });
         this.addEventListener(window, "beforeunload", (e) => {
             if (!this.started) return;
+            this.stopAutosave(); 
             this.callEvent("exit");
         });
         this.addEventListener(this.elements.parent, "dragenter", (e) => {
@@ -1327,6 +1332,11 @@ class EmulatorJS {
             icon: '<svg viewBox="0 0 448 512"><path fill="currentColor" d="M433.941 129.941l-83.882-83.882A48 48 0 0 0 316.118 32H48C21.49 32 0 53.49 0 80v352c0 26.51 21.49 48 48 48h352c26.51 0 48-21.49 48-48V163.882a48 48 0 0 0-14.059-33.941zM224 416c-35.346 0-64-28.654-64-64 0-35.346 28.654-64 64-64s64 28.654 64 64c0 35.346-28.654 64-64 64zm96-304.52V212c0 6.627-5.373 12-12 12H76c-6.627 0-12-5.373-12-12V108c0-6.627 5.373-12 12-12h228.52c3.183 0 6.235 1.264 8.485 3.515l3.48 3.48A11.996 11.996 0 0 1 320 111.48z"/></svg>',
             displayName: "Save State"
         },
+                autosave: {
+            visible: true,
+            icon: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2" stroke-dasharray="3,2"/><path d="M12 8v4l3 2" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><polyline points="8,11 12,7 16,11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/></svg>',
+            displayName: "Auto Save"
+        },
         loadState: {
             visible: true,
             icon: '<svg viewBox="0 0 576 512"><path fill="currentColor" d="M572.694 292.093L500.27 416.248A63.997 63.997 0 0 1 444.989 448H45.025c-18.523 0-30.064-20.093-20.731-36.093l72.424-124.155A64 64 0 0 1 152 256h399.964c18.523 0 30.064 20.093 20.73 36.093zM152 224h328v-48c0-26.51-21.49-48-48-48H272l-64-64H48C21.49 64 0 85.49 0 112v278.046l69.077-118.418C86.214 242.25 117.989 224 152 224z"/></svg>',
@@ -1482,6 +1492,64 @@ class EmulatorJS {
         }
 
         return mergedButtonOptions;
+    }
+    async startAutosave() {
+        try {
+            // Request file handle for saving
+            this.autosaveFileHandle = await window.showSaveFilePicker({
+                suggestedName: this.getBaseFileName() + "-autosave.state",
+                types: [{
+                    description: 'Save State files',
+                    accept: { 'application/octet-stream': ['.state'] }
+                }]
+            });
+            
+            this.autosaveEnabled = true;
+            this.displayMessage(this.localization("Auto-save enabled"), 3000);
+            
+            // Save immediately
+            await this.performAutosave();
+            
+            // Set up interval for every 30 seconds
+            this.autosaveInterval = setInterval(() => {
+                this.performAutosave();
+            }, 30000);
+            
+        } catch (error) {
+            if (error.name !== 'AbortError') {
+                console.error('Failed to start autosave:', error);
+                this.displayMessage(this.localization("Failed to start auto-save"), 3000);
+            }
+        }
+    }
+
+    stopAutosave() {
+        if (this.autosaveInterval) {
+            clearInterval(this.autosaveInterval);
+            this.autosaveInterval = null;
+        }
+        this.autosaveEnabled = false;
+        this.autosaveFileHandle = null;
+        this.displayMessage(this.localization("Auto-save disabled"), 3000);
+    }
+
+    async performAutosave() {
+        if (!this.autosaveFileHandle || !this.started || !this.gameManager) {
+            return;
+        }
+        
+        try {
+            const state = this.gameManager.getState();
+            const writable = await this.autosaveFileHandle.createWritable();
+            await writable.write(state);
+            await writable.close();
+            
+            // Brief visual feedback
+            this.displayMessage(this.localization("Auto-saved"), 1000);
+        } catch (error) {
+            console.error('Auto-save failed:', error);
+            this.stopAutosave(); // Stop if there are permission issues
+        }
     }
     createContextMenu() {
         this.elements.contextmenu = this.createElement("div");
@@ -2000,6 +2068,14 @@ class EmulatorJS {
                 a.click();
             }
         });
+         const autosave = addButton(this.config.buttonOpts.autosave, async () => {
+            if (!this.autosaveEnabled) {
+                await this.startAutosave();
+            } else {
+                this.stopAutosave();
+            }
+        });
+
         const loadState = addButton(this.config.buttonOpts.loadState, async () => {
             const called = this.callEvent("loadState");
             if (called > 0) return;
@@ -2309,6 +2385,7 @@ class EmulatorJS {
             this.addEventListener(submit, "click", (e) => {
                 popups[0].remove();
                 const body = this.createPopup("EmulatorJS has exited", {});
+                this.stopAutosave(); 
                 this.callEvent("exit");
             })
             setTimeout(this.menu.close.bind(this), 20);
@@ -2340,6 +2417,7 @@ class EmulatorJS {
             contextMenu: [contextMenuButton],
             fullscreen: [enter, exit],
             saveState: [saveState],
+            autosave: [autosave],
             loadState: [loadState],
             gamepad: [controlMenu],
             cheat: [cheatMenu],
@@ -2368,6 +2446,7 @@ class EmulatorJS {
                 unmuteButton.style.display = "none";
             }
             if (this.config.buttonOpts.saveState.visible === false) saveState.style.display = "none";
+            if (this.config.buttonOpts.autosave.visible === false) autosave.style.display = "none";
             if (this.config.buttonOpts.loadState.visible === false) loadState.style.display = "none";
             if (this.config.buttonOpts.saveSavFiles.visible === false) saveSavFiles.style.display = "none";
             if (this.config.buttonOpts.loadSavFiles.visible === false) loadSavFiles.style.display = "none";
