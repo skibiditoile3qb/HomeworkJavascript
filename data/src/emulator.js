@@ -6964,32 +6964,19 @@ class EmulatorJS {
         body.appendChild(rows);
         rows.classList.add("ejs_cheat_rows");
         this.elements.cheatRows = rows;
-        this.cheatMenu = body.parentElement;
-this.cheatMenu.getElementsByTagName("h4")[0].style["padding-bottom"] = "0px";
 
-
-const msg = this.createElement("div");
-msg.style["padding-top"] = "0px";
-msg.style["padding-bottom"] = "15px";
-msg.innerText = this.localization("Note that some cheats require a restart to disable");
-body.appendChild(msg);
-
-
-
-
-
-const cheatFooter = this.createElement("div");
-cheatFooter.style.marginTop = "20px";
-cheatFooter.style.textAlign = "center";
-cheatFooter.style.fontSize = "12px";
-cheatFooter.innerHTML = `
-    <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color: #00f; text-decoration: underline;">
-        View more cheats at libretro's GitHub
-    </a>
-`;
-body.appendChild(cheatFooter);
-
+        const cheatFooter = this.createElement("div");
+        cheatFooter.style.marginTop = "20px";
+        cheatFooter.style.textAlign = "center";
+        cheatFooter.style.fontSize = "12px";
+        cheatFooter.innerHTML = `
+            <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color: #00f; text-decoration: underline;">
+                View more cheats at libretro's GitHub
+            </a>
+        `;
+        body.appendChild(cheatFooter);
     }
+
     updateCheatUI() {
         if (!this.gameManager) return;
         this.elements.cheatRows.innerHTML = "";
@@ -7033,11 +7020,11 @@ body.appendChild(cheatFooter);
             addToMenu(this.cheats[i].desc, this.cheats[i].checked, this.cheats[i].code, this.cheats[i].is_permanent, i);
         }
     }
+
     cheatChanged(checked, code, index) {
         if (!this.gameManager) return;
         this.gameManager.setCheat(index, checked, code);
     }
-
     enableShader(name) {
         if (!this.gameManager) return;
         try {
