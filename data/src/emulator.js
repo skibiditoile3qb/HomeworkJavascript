@@ -1496,6 +1496,7 @@ class EmulatorJS {
     async startAutosave() {
         try {
             // Request file handle for saving
+            await this.displayMessage(this.localization("Rename any file to autosave.state for efficiency."), 3000);
             this.autosaveFileHandle = await window.showSaveFilePicker({
                 suggestedName: this.getBaseFileName() + "-autosave.state",
                 types: [{
@@ -1510,7 +1511,7 @@ class EmulatorJS {
             // Save immediately
             await this.performAutosave();
             
-            // Set up interval for every 30 seconds
+            // Set up interval for every 10 seconds
             this.autosaveInterval = setInterval(() => {
                 this.performAutosave();
             }, 10000);
@@ -1545,7 +1546,7 @@ class EmulatorJS {
             await writable.close();
             
             // Brief visual feedback
-            this.displayMessage(this.localization("Auto-saved"), 1000);
+            this.displayMessage(this.localization("Auto-saved"), 1500);
         } catch (error) {
             console.error('Auto-save failed:', error);
             this.stopAutosave(); // Stop if there are permission issues
