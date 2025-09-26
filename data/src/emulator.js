@@ -6975,10 +6975,7 @@ msg.innerText = this.localization("Note that some cheats require a restart to di
 body.appendChild(msg);
 
 
-const rows = this.createElement("div");
-rows.classList.add("ejs_cheat_rows");
-body.appendChild(rows);
-this.elements.cheatRows = rows;
+
 
 
 const cheatFooter = this.createElement("div");
