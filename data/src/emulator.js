@@ -6968,21 +6968,16 @@ class EmulatorJS {
     rows.classList.add("ejs_cheat_rows");
     this.elements.cheatRows = rows;
 
-    // FOOTER WITH CHEAT LINK
-    const cheatFooter = this.createElement("div");
-    cheatFooter.style.marginTop = "10px";
-    cheatFooter.style.padding = "8px";
-    cheatFooter.style.background = "#222";
-    cheatFooter.style.color = "#eee";
-    cheatFooter.style.fontSize = "13px";
-    cheatFooter.style.borderRadius = "6px";
-    cheatFooter.style.textAlign = "center";
-    cheatFooter.innerHTML = `See some cheats at 
-        <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color:#4af;text-decoration:none;">
+    // Just drop the link at the bottom
+    const cheatLink = this.createElement("div");
+    cheatLink.style.marginTop = "10px";
+    cheatLink.innerHTML = `See some cheats at 
+        <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank">
             libretro cheat database
         </a>`;
-    body.appendChild(cheatFooter);
+    body.appendChild(cheatLink);
 }
+
 
     updateCheatUI() {
         if (!this.gameManager) return;
