@@ -1514,7 +1514,6 @@ class EmulatorJS {
         });
 
         this.autosaveEnabled = true;
-        this.displayMessage(this.localization("Autosave enabled"), 3000);
 
         await this.performAutosave();
 
@@ -1554,8 +1553,8 @@ async performAutosave() {
 
     this.displayMessage(this.localization("Autosaved"), 1000);
 }
-
-handleAutosaveError(error) {
+//error handling
+handleAutosaveError(error) { 
     console.error("Autosave failed:", error);
     this.displayMessage(this.localization("Autosave Failed"), 3000);
     this.stopAutosave();
