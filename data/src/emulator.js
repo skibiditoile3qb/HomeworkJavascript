@@ -6872,115 +6872,110 @@ class EmulatorJS {
             console.warn("Module is undefined. postMainLoop will not be set.");
         }
     }
-   createCheatsMenu() {
-    const body = this.createPopup("Cheats", {
-        "Add Cheat": () => {
-            const popups = this.createSubPopup();
-            this.cheatMenu.appendChild(popups[0]);
-            popups[1].classList.add("ejs_cheat_parent");
-            popups[1].style.width = "100%";
-            const popup = popups[1];
-            const header = this.createElement("div");
-            header.classList.add("ejs_cheat_header");
-            const title = this.createElement("h2");
-            title.innerText = this.localization("Add Cheat Code");
-            title.classList.add("ejs_cheat_heading");
-            const close = this.createElement("button");
-            close.classList.add("ejs_cheat_close");
-            header.appendChild(title);
-            header.appendChild(close);
-            popup.appendChild(header);
-            this.addEventListener(close, "click", (e) => {
-                popups[0].remove();
-            })
+    createCheatsMenu() {
+        const body = this.createPopup("Cheats", {
+            "Add Cheat": () => {
+                const popups = this.createSubPopup();
+                this.cheatMenu.appendChild(popups[0]);
+                popups[1].classList.add("ejs_cheat_parent");
+                popups[1].style.width = "100%";
+                const popup = popups[1];
+                const header = this.createElement("div");
+                header.classList.add("ejs_cheat_header");
+                const title = this.createElement("h2");
+                title.innerText = this.localization("Add Cheat Code");
+                title.classList.add("ejs_cheat_heading");
+                const close = this.createElement("button");
+                close.classList.add("ejs_cheat_close");
+                header.appendChild(title);
+                header.appendChild(close);
+                popup.appendChild(header);
+                this.addEventListener(close, "click", (e) => {
+                    popups[0].remove();
+                })
 
-            const main = this.createElement("div");
-            main.classList.add("ejs_cheat_main");
-            const header3 = this.createElement("strong");
-            header3.innerText = this.localization("Code");
-            main.appendChild(header3);
-            main.appendChild(this.createElement("br"));
-            const mainText = this.createElement("textarea");
-            mainText.classList.add("ejs_cheat_code");
-            mainText.style.width = "100%";
-            mainText.style.height = "80px";
-            main.appendChild(mainText);
-            main.appendChild(this.createElement("br"));
-            const header2 = this.createElement("strong");
-            header2.innerText = this.localization("Description");
-            main.appendChild(header2);
-            main.appendChild(this.createElement("br"));
-            const mainText2 = this.createElement("input");
-            mainText2.type = "text";
-            mainText2.classList.add("ejs_cheat_code");
-            main.appendChild(mainText2);
-            main.appendChild(this.createElement("br"));
-            popup.appendChild(main);
+                const main = this.createElement("div");
+                main.classList.add("ejs_cheat_main");
+                const header3 = this.createElement("strong");
+                header3.innerText = this.localization("Code");
+                main.appendChild(header3);
+                main.appendChild(this.createElement("br"));
+                const mainText = this.createElement("textarea");
+                mainText.classList.add("ejs_cheat_code");
+                mainText.style.width = "100%";
+                mainText.style.height = "80px";
+                main.appendChild(mainText);
+                main.appendChild(this.createElement("br"));
+                const header2 = this.createElement("strong");
+                header2.innerText = this.localization("Description");
+                main.appendChild(header2);
+                main.appendChild(this.createElement("br"));
+                const mainText2 = this.createElement("input");
+                mainText2.type = "text";
+                mainText2.classList.add("ejs_cheat_code");
+                main.appendChild(mainText2);
+                main.appendChild(this.createElement("br"));
+                popup.appendChild(main);
 
-            const footer = this.createElement("footer");
-            const submit = this.createElement("button");
-            const closeButton = this.createElement("button");
-            submit.innerText = this.localization("Submit");
-            closeButton.innerText = this.localization("Close");
-            submit.classList.add("ejs_button_button");
-            closeButton.classList.add("ejs_button_button");
-            submit.classList.add("ejs_popup_submit");
-            closeButton.classList.add("ejs_popup_submit");
-            submit.style["background-color"] = "rgba(var(--ejs-primary-color),1)";
-            footer.appendChild(submit);
-            const span = this.createElement("span");
-            span.innerText = " ";
-            footer.appendChild(span);
-            footer.appendChild(closeButton);
-            popup.appendChild(footer);
+                const footer = this.createElement("footer");
+                const submit = this.createElement("button");
+                const closeButton = this.createElement("button");
+                submit.innerText = this.localization("Submit");
+                closeButton.innerText = this.localization("Close");
+                submit.classList.add("ejs_button_button");
+                closeButton.classList.add("ejs_button_button");
+                submit.classList.add("ejs_popup_submit");
+                closeButton.classList.add("ejs_popup_submit");
+                submit.style["background-color"] = "rgba(var(--ejs-primary-color),1)";
+                footer.appendChild(submit);
+                const span = this.createElement("span");
+                span.innerText = " ";
+                footer.appendChild(span);
+                footer.appendChild(closeButton);
+                popup.appendChild(footer);
 
-            this.addEventListener(submit, "click", (e) => {
-                if (!mainText.value.trim() || !mainText2.value.trim()) return;
-                popups[0].remove();
-                this.cheats.push({
-                    code: mainText.value,
-                    desc: mainText2.value,
-                    checked: false
-                });
-                this.updateCheatUI();
-                this.saveSettings();
-            })
-            this.addEventListener(closeButton, "click", (e) => {
-                popups[0].remove();
-            })
-        },
-        "Close": () => {
-            this.cheatMenu.style.display = "none";
-        }
-    }, true);
-    
-    this.cheatMenu = body.parentElement;
-    
-    this.cheatMenu.getElementsByTagName("h4")[0].style["padding-bottom"] = "0px";
-    const msg = this.createElement("div");
-    msg.style["padding-top"] = "0px";
-    msg.style["padding-bottom"] = "15px";
-    msg.innerText = this.localization("Note that some cheats require a restart to disable");
-    body.appendChild(msg);
-    const rows = this.createElement("div");
-    body.appendChild(rows);
-    rows.classList.add("ejs_cheat_rows");
-    this.elements.cheatRows = rows;
+                this.addEventListener(submit, "click", (e) => {
+                    if (!mainText.value.trim() || !mainText2.value.trim()) return;
+                    popups[0].remove();
+                    this.cheats.push({
+                        code: mainText.value,
+                        desc: mainText2.value,
+                        checked: false
+                    });
+                    this.updateCheatUI();
+                    this.saveSettings();
+                })
+                this.addEventListener(closeButton, "click", (e) => {
+                    popups[0].remove();
+                })
+            },
+            "Close": () => {
+                this.cheatMenu.style.display = "none";
+            }
+        }, true);
+        this.cheatMenu = body.parentElement;
+        this.cheatMenu.getElementsByTagName("h4")[0].style["padding-bottom"] = "0px";
+        const msg = this.createElement("div");
+        msg.style["padding-top"] = "0px";
+        msg.style["padding-bottom"] = "15px";
+        msg.innerText = this.localization("Note that some cheats require a restart to disable");
+        body.appendChild(msg);
+        const rows = this.createElement("div");
+        body.appendChild(rows);
+        rows.classList.add("ejs_cheat_rows");
+        this.elements.cheatRows = rows;
 
-    const cheatFooter = this.createElement("div");
-    cheatFooter.style.marginTop = "20px";
-    cheatFooter.style.textAlign = "center";
-    cheatFooter.style.fontSize = "12px";
-    cheatFooter.innerHTML = `
-        <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color: #00f; text-decoration: underline;">
-            View more cheats at libretro's GitHub
-        </a>
-    `;
-    body.appendChild(cheatFooter);
-    
-    // Initially hide the menu
-    this.cheatMenu.style.display = "none";
-}
+        const cheatFooter = this.createElement("div");
+        cheatFooter.style.marginTop = "20px";
+        cheatFooter.style.textAlign = "center";
+        cheatFooter.style.fontSize = "12px";
+        cheatFooter.innerHTML = `
+            <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color: #00f; text-decoration: underline;">
+                View more cheats at libretro's GitHub
+            </a>
+        `;
+        body.appendChild(cheatFooter);
+    }
 
     updateCheatUI() {
         if (!this.gameManager) return;
