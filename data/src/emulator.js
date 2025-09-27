@@ -6872,7 +6872,7 @@ class EmulatorJS {
             console.warn("Module is undefined. postMainLoop will not be set.");
         }
     }
-createCheatsMenu() {
+ createCheatsMenu() {
     const body = this.createPopup("Cheats", {
         "Add Cheat": () => {
             const popups = this.createSubPopup();
@@ -6892,7 +6892,7 @@ createCheatsMenu() {
             popup.appendChild(header);
             this.addEventListener(close, "click", (e) => {
                 popups[0].remove();
-            })
+            });
 
             const main = this.createElement("div");
             main.classList.add("ejs_cheat_main");
@@ -6944,65 +6944,44 @@ createCheatsMenu() {
                 });
                 this.updateCheatUI();
                 this.saveSettings();
-            })
+            });
             this.addEventListener(closeButton, "click", (e) => {
                 popups[0].remove();
-            })
+            });
         },
         "Close": () => {
             this.cheatMenu.style.display = "none";
         }
     }, true);
-    
+
     this.cheatMenu = body.parentElement;
-    
-    // Ensure the cheat menu has proper modal overlay styling
-    this.cheatMenu.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
-    this.cheatMenu.style.position = "fixed";
-    this.cheatMenu.style.top = "0";
-    this.cheatMenu.style.left = "0";
-    this.cheatMenu.style.width = "100%";
-    this.cheatMenu.style.height = "100%";
-    this.cheatMenu.style.zIndex = "1000";
-    
-    // The body should have a black background with white text
-    body.style.backgroundColor = "#000";
-    body.style.color = "#fff";
-    body.style.border = "1px solid #555";
-    body.style.borderRadius = "8px";
-    body.style.padding = "20px";
-    body.style.margin = "auto";
-    body.style.marginTop = "5%";
-    body.style.minWidth = "400px";
-    body.style.maxWidth = "600px";
-    body.style.maxHeight = "80vh";
-    body.style.overflow = "auto";
-    body.style.position = "relative";
-    
     this.cheatMenu.getElementsByTagName("h4")[0].style["padding-bottom"] = "0px";
+
     const msg = this.createElement("div");
     msg.style["padding-top"] = "0px";
     msg.style["padding-bottom"] = "15px";
     msg.innerText = this.localization("Note that some cheats require a restart to disable");
     body.appendChild(msg);
+
     const rows = this.createElement("div");
     body.appendChild(rows);
     rows.classList.add("ejs_cheat_rows");
     this.elements.cheatRows = rows;
 
+    // FOOTER WITH CHEAT LINK
     const cheatFooter = this.createElement("div");
-    cheatFooter.style.marginTop = "20px";
+    cheatFooter.style.marginTop = "10px";
+    cheatFooter.style.padding = "8px";
+    cheatFooter.style.background = "#222";
+    cheatFooter.style.color = "#eee";
+    cheatFooter.style.fontSize = "13px";
+    cheatFooter.style.borderRadius = "6px";
     cheatFooter.style.textAlign = "center";
-    cheatFooter.style.fontSize = "12px";
-    cheatFooter.innerHTML = `
-        <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color: #00f; text-decoration: underline;">
-            View more cheats at libretro's GitHub
-        </a>
-    `;
+    cheatFooter.innerHTML = `See some cheats at 
+        <a href="https://github.com/libretro/libretro-database/tree/master/cht" target="_blank" style="color:#4af;text-decoration:none;">
+            libretro cheat database
+        </a>`;
     body.appendChild(cheatFooter);
-    
-    // Initially hide the menu
-    this.cheatMenu.style.display = "none";
 }
 
     updateCheatUI() {
@@ -7048,7 +7027,6 @@ createCheatsMenu() {
             addToMenu(this.cheats[i].desc, this.cheats[i].checked, this.cheats[i].code, this.cheats[i].is_permanent, i);
         }
     }
-
     cheatChanged(checked, code, index) {
         if (!this.gameManager) return;
         this.gameManager.setCheat(index, checked, code);
