@@ -1493,67 +1493,67 @@ class EmulatorJS {
 
         return mergedButtonOptions;
     }
-    async startAutosave() {
-        try {
-            // Request file handle for saving
-            this.displayMessage(this.localization("Rename any file to autosave.state for efficiency."), 3000);
-            await new Promise(resolve => setTimeout(resolve, 3000));
-
-            this.autosaveFileHandle = await window.showSaveFilePicker({
-                suggestedName: this.getBaseFileName() + "-autosave.state",
-                types: [{
-                    description: 'Save State files',
-                    accept: { 'application/octet-stream': ['.state'] }
-                }]
-            });
-            
-            this.autosaveEnabled = true;
-            this.displayMessage(this.localization("Auto-save enabled"), 3000);
-            
-            // Save immediately
-            await this.performAutosave();
-            
-            // Set up interval for every 10 seconds
-            this.autosaveInterval = setInterval(() => {
-                this.performAutosave();
-            }, 10000);
-            
-        } catch (error) {
-            if (error.name !== 'AbortError') {
-                console.error('Failed to start autosave:', error);
-                this.displayMessage(this.localization("Failed to start auto-save"), 3000);
-            }
-        }
+   async startAutosave() {
+    if (!window.showSaveFilePicker) {
+        this.displayMessage(this.localization("Your browser does not support Auto-save"), 3000);
+        return;
     }
 
-    stopAutosave() {
-        if (this.autosaveInterval) {
-            clearInterval(this.autosaveInterval);
-            this.autosaveInterval = null;
-        }
-        this.autosaveEnabled = false;
-        this.autosaveFileHandle = null;
-        this.displayMessage(this.localization("Auto-save disabled"), 3000);
+    try {
+        this.displayMessage(this.localization("Rename to autosave.state for efficiency."), 3000); //So you know which one is the autosave state file and which ones are normal state files.
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        this.autosaveFileHandle = await window.showSaveFilePicker({
+            suggestedName: this.getBaseFileName() + "-autosave.state",
+            types: [{
+                description: "Save State files",
+                accept: { "application/octet-stream": [".state"] }
+            }]
+        });
+
+        this.autosaveEnabled = true;
+        this.displayMessage(this.localization("Auto-save enabled"), 3000);
+
+        await this.performAutosave();
+
+        this.autosaveInterval = setInterval(() => {
+            this.performAutosave().catch(err => this.handleAutosaveError(err));
+        }, 10000);
+
+    } catch (error) {
+        this.handleAutosaveError(error);
+    }
+}
+
+stopAutosave() {
+    if (this.autosaveInterval) {
+        clearInterval(this.autosaveInterval);
+        this.autosaveInterval = null;
+    }
+    this.autosaveEnabled = false;
+    this.autosaveFileHandle = null;
+    this.displayMessage(this.localization("Auto-save disabled"), 3000);
+}
+
+async performAutosave() {
+    if (!this.autosaveFileHandle || !this.started || !this.gameManager) {
+        return; // nothing to save
     }
 
-    async performAutosave() {
-        if (!this.autosaveFileHandle || !this.started || !this.gameManager) {
-            return;
-        }
-        
-        try {
-            const state = this.gameManager.getState();
-            const writable = await this.autosaveFileHandle.createWritable();
-            await writable.write(state);
-            await writable.close();
-            
-            // Brief visual feedback
-            this.displayMessage(this.localization("Auto-saved"), 1500);
-        } catch (error) {
-            console.error('Auto-save failed:', error);
-            this.stopAutosave(); // Stop if there are permission issues
-        }
-    }
+    const state = this.gameManager.getState();
+    const writable = await this.autosaveFileHandle.createWritable();
+    await writable.write(state);
+    await writable.close();
+
+    this.displayMessage(this.localization("Auto-saved"), 1500);
+}
+
+handleAutosaveError(error) {
+    if (error.name === "AbortError") return; //not really an error
+    console.error("Autosave failed:", error);
+    this.displayMessage(this.localization("Autosave Failed"), 3000);
+    this.stopAutosave();
+}
+
     createContextMenu() {
         this.elements.contextmenu = this.createElement("div");
         this.elements.contextmenu.classList.add("ejs_context_menu");
