@@ -192,7 +192,17 @@
                 console.log(`Loading ROM from URL: roms/${urlParams.get("rom")}`);
                 run(false, urlParams.get("rom"));
             }
+            function toggleDropdown() {
+                const menu = document.getElementById("dropdownMenu");
+                menu.classList.toggle("show");
+                }
 
+// Hide dropdown if clicked outside
+                window.addEventListener("click", function (e) {
+                    if (!e.target.closest(".dropdown")) {
+                        document.getElementById("dropdownMenu")?.classList.remove("show");
+                    }
+                });
             async function run(upload, file) {
                 const url = upload ? input.files[0] : `roms/${file}`;
                 const parts = upload ? input.files[0].name.split(".") : file.split(".");
@@ -294,6 +304,8 @@
                 div.id = "display";
 
                 const top = document.getElementById("top");
+                document.querySelector('.dropdown')?.remove();
+
                 top.remove();
                 box.remove();
                 div.appendChild(sub);
