@@ -6956,7 +6956,7 @@ createCheatsMenu() {
     
     this.cheatMenu = body.parentElement;
     
-    // Ensure the cheat menu has proper background styling
+    // Ensure the cheat menu has proper modal overlay styling
     this.cheatMenu.style.backgroundColor = "rgba(0, 0, 0, 0.8)";
     this.cheatMenu.style.position = "fixed";
     this.cheatMenu.style.top = "0";
@@ -6964,19 +6964,20 @@ createCheatsMenu() {
     this.cheatMenu.style.width = "100%";
     this.cheatMenu.style.height = "100%";
     this.cheatMenu.style.zIndex = "1000";
-    this.cheatMenu.style.display = "flex";
-    this.cheatMenu.style.alignItems = "center";
-    this.cheatMenu.style.justifyContent = "center";
     
-    // Ensure the body has proper background
-    body.style.backgroundColor = "#fff";
-    body.style.border = "1px solid #ccc";
+    // The body should have a black background with white text
+    body.style.backgroundColor = "#000";
+    body.style.color = "#fff";
+    body.style.border = "1px solid #555";
     body.style.borderRadius = "8px";
     body.style.padding = "20px";
+    body.style.margin = "auto";
+    body.style.marginTop = "5%";
     body.style.minWidth = "400px";
-    body.style.maxWidth = "80%";
-    body.style.maxHeight = "80%";
+    body.style.maxWidth = "600px";
+    body.style.maxHeight = "80vh";
     body.style.overflow = "auto";
+    body.style.position = "relative";
     
     this.cheatMenu.getElementsByTagName("h4")[0].style["padding-bottom"] = "0px";
     const msg = this.createElement("div");
