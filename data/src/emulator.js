@@ -1495,13 +1495,16 @@ class EmulatorJS {
     }
    async startAutosave() {
     if (!window.showSaveFilePicker) {
-        this.displayMessage(this.localization("Your browser does not support Auto-save"), 3000);
+        this.displayMessage(this.localization("Browser does not support AutoSave"), 3000);
         return;
     }
 
     try {
-        this.displayMessage(this.localization("Rename to autosave.state for efficiency."), 3000); //So you know which one is the autosave state file and which ones are normal state files.
+        
+        this.displayMessage(this.localization("Rename to AutoSave.state for efficiency."), 3000); //Know which one is autosave file and which one is not
         await new Promise(resolve => setTimeout(resolve, 3000));
+
+        
         this.autosaveFileHandle = await window.showSaveFilePicker({
             suggestedName: this.getBaseFileName() + "-autosave.state",
             types: [{
@@ -1511,13 +1514,18 @@ class EmulatorJS {
         });
 
         this.autosaveEnabled = true;
-        this.displayMessage(this.localization("Auto-save enabled"), 3000);
+        this.displayMessage(this.localization("Autosave enabled"), 3000);
 
         await this.performAutosave();
 
-        this.autosaveInterval = setInterval(() => {
-            this.performAutosave().catch(err => this.handleAutosaveError(err));
-        }, 10000);
+        
+        this.autosaveInterval = setInterval(async () => {
+            try {
+                await this.performAutosave();
+            } catch (err) {
+                this.handleAutosaveError(err);
+            }
+        }, 10000); //10 seconds but can be adjusted
 
     } catch (error) {
         this.handleAutosaveError(error);
@@ -1531,12 +1539,12 @@ stopAutosave() {
     }
     this.autosaveEnabled = false;
     this.autosaveFileHandle = null;
-    this.displayMessage(this.localization("Auto-save disabled"), 3000);
+    this.displayMessage(this.localization("Autosave disabled"), 3000);
 }
 
 async performAutosave() {
     if (!this.autosaveFileHandle || !this.started || !this.gameManager) {
-        return; // nothing to save
+        return; 
     }
 
     const state = this.gameManager.getState();
@@ -1544,11 +1552,10 @@ async performAutosave() {
     await writable.write(state);
     await writable.close();
 
-    this.displayMessage(this.localization("Auto-saved"), 1500);
+    this.displayMessage(this.localization("Autosaved"), 1000);
 }
 
 handleAutosaveError(error) {
-    if (error.name === "AbortError") return; //not really an error
     console.error("Autosave failed:", error);
     this.displayMessage(this.localization("Autosave Failed"), 3000);
     this.stopAutosave();
